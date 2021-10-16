@@ -1,6 +1,9 @@
 from random import randint
 from operator import xor
 
+IP = [1, 5, 2, 0, 3, 7, 4, 6]
+INVERSE_IP = [3, 0, 2, 4, 6, 1, 7, 5]
+
 
 def generate_keys():
     # Permutation orders
@@ -47,7 +50,6 @@ def generate_keys():
     print("------------------------------------------")
     print(f"Key-1: {key1}\nKey-2: {key2}")
     return (key1, key2)
-
 
 def fk(ip, key):
     expansion_permutation = [3, 0, 1, 2, 1, 2, 3, 0]
@@ -100,8 +102,6 @@ def fk(ip, key):
 
     return result
 
-
-
 def map_decimal_to_binary_array(decimal_value):
     if decimal_value == 0:
         return [0, 0]
@@ -115,17 +115,19 @@ def map_decimal_to_binary_array(decimal_value):
 
 # -----------------------------------------------------------------------
 if __name__ == "__main__":
-    ip = [1, 5, 2, 0, 3, 7, 4, 6]
-    inverse_ip = [3, 0, 2, 4, 6, 1, 7, 5]
     key1, key2 = generate_keys()
+    key1 = [1, 0, 1, 0, 0, 1, 0, 0]
+    key2 = [0, 1, 0, 0, 0, 0, 1, 1]
+    print("key1 =", key1)
+    print("key2 =", key2)
 
-    print("------------------------------------------")
     # Convert the 8-bit int message to a list
     original_message = input("Enter an 8-bit message: ")
     original_message = [int(x) for x in original_message]
+    original_message = [1, 0, 1, 1, 1, 1, 0, 1]
 
     # First round
-    first_round_input = [original_message[i] for i in ip]
+    first_round_input = [original_message[i] for i in IP]
     print("encryped message after initial permutation:", first_round_input)
     first_round_result = fk(first_round_input, key1)
     print("Left result (first round) =", first_round_result)
@@ -138,5 +140,25 @@ if __name__ == "__main__":
 
     # Final result
     final_result = second_round_result + first_round_result
-    final_result_permuted = [final_result[i] for i in inverse_ip]
+    final_result_permuted = [final_result[i] for i in INVERSE_IP]
     print("final_result_permuted =", final_result_permuted)
+
+    # Decryption
+    print("\n------------DECRYPTION------------\n")
+    # First round
+    first_round_input = [final_result_permuted[i] for i in IP]
+    print("decrypted message after initial permutation:", first_round_input)
+    first_round_result = fk(first_round_input, key2)
+    print("Left result (first round) =", first_round_result)
+
+    # Second round
+    second_round_input = first_round_input[-4:] + first_round_result
+    print("second round input:", second_round_input)
+    second_round_result = fk(second_round_input, key1)
+    print("second round result:", second_round_result)
+
+    # Final result
+    final_result = second_round_result + first_round_result
+    final_result_permuted = [final_result[i] for i in INVERSE_IP]
+    print("final_result_permuted =", final_result_permuted)
+
