@@ -83,11 +83,18 @@ def fk(ip, key1):
     print("s0 output =", s0_output)
     print("s1 output =", s1_output)
 
-    result = map_decimal_to_binary_array(s0_output) + map_decimal_to_binary_array(s1_output)
-    print("result =", result)
-    permuted_result = [result[i] for i in p4]
-    print("permuted result =", permuted_result)
-    return permuted_result
+    s0s1 = map_decimal_to_binary_array(s0_output) + map_decimal_to_binary_array(s1_output)
+    print("s0s1 =", s0s1)
+    permuted_s0s1 = [s0s1[i] for i in p4]
+    print("permuted result =", permuted_s0s1)
+
+    result = []
+    print(left_part, permuted_s0s1)
+    for i in range(0, len(left_part)):
+        result.append(xor(left_part[i], permuted_s0s1[i]))
+
+    return result
+
 
 
 def map_decimal_to_binary_array(decimal_value):
@@ -106,13 +113,26 @@ if __name__ == "__main__":
     ip = [1, 5, 2, 0, 3, 7, 4, 6]
     inverse_ip = [3, 0, 2, 4, 6, 1, 7, 5]
     key1, key2 = generate_keys()
+    #delete
+    key1 = [1, 0, 1, 0, 0, 1, 0, 0]
+    key2 = [0, 1, 0, 0, 0, 0, 1, 1]
     
     print("------------------------------------------")
     # Convert the 8-bit int message to a list
     original_message = input("Enter an 8-bit message: ")
     original_message = [int(x) for x in str(original_message)]
     # IP
+    original_message = [1, 0, 1, 1, 1, 1, 0, 1]#delete
     encrypted_message = [original_message[i] for i in ip]
-
+    print("encryped message:", encrypted_message)
     # fk
-    fk(encrypted_message, key1)
+    first_result = fk(encrypted_message, key1)
+    encrypted_message_2 = encrypted_message[-4:] + first_result
+    print("first_result:", first_result)
+    print("encrypted message 2:", encrypted_message_2)
+    second_result = fk(encrypted_message_2, key2)
+    print("second result:", second_result)
+
+    final_result = second_result + first_result
+    final_result_permuted = [final_result[i] for i in inverse_ip]
+    print("final_result_permuted =", final_result_permuted)
