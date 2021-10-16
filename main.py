@@ -49,8 +49,8 @@ def generate_keys():
     return (key1, key2)
 
 
-def fk(ip, key1):
-    ep = [3, 0, 1, 2, 1, 2, 3, 0]
+def fk(ip, key):
+    expansion_permutation = [3, 0, 1, 2, 1, 2, 3, 0]
     p4 = [1, 3, 2, 0]
     s0 = [[1, 0, 3, 2],
           [3, 2, 1, 0],
@@ -62,11 +62,17 @@ def fk(ip, key1):
           [2, 1, 0, 3]]
     left_part = ip[:4]
     right_part = ip[-4:]
-    expanded_right = [right_part[i] for i in ep]
-    print(expanded_right)
-    print(key1)
+
+    expanded_right = [right_part[i] for i in expansion_permutation]
+    print("Expanded right:", expanded_right)
+    print("Key:", key)
+
+    # xor between key and e/p
     for i in range(0, len(expanded_right)):
-        expanded_right[i] = xor(expanded_right[i], key1[i])
+        expanded_right[i] = xor(expanded_right[i], key[i])
+    print("expanded right after xor:", expanded_right)
+
+    # Declaration of bits
     p00 = str(expanded_right[0])
     p03 = str(expanded_right[3])
     p01 = str(expanded_right[1])
@@ -75,7 +81,6 @@ def fk(ip, key1):
     p13 = str(expanded_right[7])
     p11 = str(expanded_right[5])
     p12 = str(expanded_right[6])
-    print(expanded_right)
 
     # Concat values and cast them to int to access s boxes
     s0_output = s0[int(p00 + p03, 2)][int(p01 + p02, 2)]
@@ -86,7 +91,7 @@ def fk(ip, key1):
     s0s1 = map_decimal_to_binary_array(s0_output) + map_decimal_to_binary_array(s1_output)
     print("s0s1 =", s0s1)
     permuted_s0s1 = [s0s1[i] for i in p4]
-    print("permuted result =", permuted_s0s1)
+    print("result after p4=", permuted_s0s1)
 
     result = []
     print(left_part, permuted_s0s1)
@@ -113,26 +118,25 @@ if __name__ == "__main__":
     ip = [1, 5, 2, 0, 3, 7, 4, 6]
     inverse_ip = [3, 0, 2, 4, 6, 1, 7, 5]
     key1, key2 = generate_keys()
-    #delete
-    key1 = [1, 0, 1, 0, 0, 1, 0, 0]
-    key2 = [0, 1, 0, 0, 0, 0, 1, 1]
-    
+
     print("------------------------------------------")
     # Convert the 8-bit int message to a list
     original_message = input("Enter an 8-bit message: ")
-    original_message = [int(x) for x in str(original_message)]
-    # IP
-    original_message = [1, 0, 1, 1, 1, 1, 0, 1]#delete
-    encrypted_message = [original_message[i] for i in ip]
-    print("encryped message:", encrypted_message)
-    # fk
-    first_result = fk(encrypted_message, key1)
-    encrypted_message_2 = encrypted_message[-4:] + first_result
-    print("first_result:", first_result)
-    print("encrypted message 2:", encrypted_message_2)
-    second_result = fk(encrypted_message_2, key2)
-    print("second result:", second_result)
+    original_message = [int(x) for x in original_message]
 
-    final_result = second_result + first_result
+    # First round
+    first_round_input = [original_message[i] for i in ip]
+    print("encryped message after initial permutation:", first_round_input)
+    first_round_result = fk(first_round_input, key1)
+    print("Left result (first round) =", first_round_result)
+
+    # Second round
+    second_round_input = first_round_input[-4:] + first_round_result
+    print("second round input:", second_round_input)
+    second_round_result = fk(second_round_input, key2)
+    print("second round result:", second_round_result)
+
+    # Final result
+    final_result = second_round_result + first_round_result
     final_result_permuted = [final_result[i] for i in inverse_ip]
     print("final_result_permuted =", final_result_permuted)
