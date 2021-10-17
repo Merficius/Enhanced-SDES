@@ -130,11 +130,10 @@ if __name__ == "__main__":
     #original_message = [1, 0, 1, 1, 1, 1, 0, 1]
 
     # Simple Columnar Transposition Technique
-    sctt_first_round = original_message[6:] + \
-        original_message[:3] + original_message[3:6]
+    sctt = [2, 5, 1, 4, 7, 0, 3, 6]
+    sctt_first_round = [original_message[i] for i in sctt]
     print("SCTT after first round:", sctt_first_round)
-    sctt_second_round = sctt_first_round[6:] + \
-        sctt_first_round[:3] + sctt_first_round[3:6]
+    sctt_second_round = [sctt_first_round[i] for i in sctt]
     print("SCTT after second round:", sctt_second_round)
 
     '''
@@ -148,7 +147,7 @@ if __name__ == "__main__":
     7 5 6'''
     shift = [0, 1, 3, 4, 2, 7, 5, 6]
     es_des_output = [sctt_second_round[i] for i in shift]
-    print("<<<<<<<<<<<<<<<<<<<<<<es_des_ouput=", es_des_output)
+    print("es_des_ouput=", es_des_output)
 
     # First round
     first_round_input = [es_des_output[i] for i in IP]
@@ -198,12 +197,10 @@ if __name__ == "__main__":
     6 7 5'''
     inverse_shift = [0, 1, 4, 2, 3, 6, 7, 5]
     inverse_shift_output = [final_result_permuted[i] for i in inverse_shift]
-    print("<<<<<<<<<<<<<<<<<<<<<<inverse shift output=", inverse_shift_output)
+    print("inverse shift output=", inverse_shift_output)
 
     # Simple Columnar Transposition Technique
-    sctt_first_round = inverse_shift_output[6:] + \
-        inverse_shift_output[:3] + inverse_shift_output[3:6]
+    sctt_first_round = [inverse_shift_output[i] for i in sctt]
     print("SCTT after first round:", sctt_first_round)
-    sctt_second_round = sctt_first_round[6:] + \
-        sctt_first_round[:3] + sctt_first_round[3:6]
+    sctt_second_round = [sctt_first_round[i] for i in sctt]
     print("plaintext:", sctt_second_round)
