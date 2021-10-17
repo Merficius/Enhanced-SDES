@@ -51,6 +51,7 @@ def generate_keys():
     print(f"Key-1: {key1}\nKey-2: {key2}")
     return (key1, key2)
 
+
 def fk(ip, key):
     expansion_permutation = [3, 0, 1, 2, 1, 2, 3, 0]
     p4 = [1, 3, 2, 0]
@@ -90,7 +91,8 @@ def fk(ip, key):
     print("s0 output =", s0_output)
     print("s1 output =", s1_output)
 
-    s0s1 = map_decimal_to_binary_array(s0_output) + map_decimal_to_binary_array(s1_output)
+    s0s1 = map_decimal_to_binary_array(
+        s0_output) + map_decimal_to_binary_array(s1_output)
     print("s0s1 =", s0s1)
     permuted_s0s1 = [s0s1[i] for i in p4]
     print("result after p4=", permuted_s0s1)
@@ -102,6 +104,7 @@ def fk(ip, key):
 
     return result
 
+
 def map_decimal_to_binary_array(decimal_value):
     if decimal_value == 0:
         return [0, 0]
@@ -110,24 +113,45 @@ def map_decimal_to_binary_array(decimal_value):
     elif decimal_value == 2:
         return [1, 0]
     elif decimal_value == 3:
-        return [1, 1]   
+        return [1, 1]
 
 
 # -----------------------------------------------------------------------
 if __name__ == "__main__":
     key1, key2 = generate_keys()
-    key1 = [1, 0, 1, 0, 0, 1, 0, 0]
-    key2 = [0, 1, 0, 0, 0, 0, 1, 1]
+    #key1 = [1, 0, 1, 0, 0, 1, 0, 0]
+    #key2 = [0, 1, 0, 0, 0, 0, 1, 1]
     print("key1 =", key1)
     print("key2 =", key2)
 
     # Convert the 8-bit int message to a list
     original_message = input("Enter an 8-bit message: ")
     original_message = [int(x) for x in original_message]
-    original_message = [1, 0, 1, 1, 1, 1, 0, 1]
+    #original_message = [1, 0, 1, 1, 1, 1, 0, 1]
+
+    # Simple Columnar Transposition Technique
+    sctt_first_round = original_message[6:] + \
+        original_message[:3] + original_message[3:6]
+    print("SCTT after first round:", sctt_first_round)
+    sctt_second_round = sctt_first_round[6:] + \
+        sctt_first_round[:3] + sctt_first_round[3:6]
+    print("SCTT after second round:", sctt_second_round)
+
+    '''
+    Shift rows
+    0 1 
+    2 3 4
+    5 6 7
+
+    0 1
+    3 4 2
+    7 5 6'''
+    shift = [0, 1, 3, 4, 2, 7, 5, 6]
+    es_des_output = [sctt_second_round[i] for i in shift]
+    print("<<<<<<<<<<<<<<<<<<<<<<es_des_ouput=", es_des_output)
 
     # First round
-    first_round_input = [original_message[i] for i in IP]
+    first_round_input = [es_des_output[i] for i in IP]
     print("encryped message after initial permutation:", first_round_input)
     first_round_result = fk(first_round_input, key1)
     print("Left result (first round) =", first_round_result)
@@ -144,7 +168,7 @@ if __name__ == "__main__":
     print("final_result_permuted =", final_result_permuted)
 
     # Decryption
-    print("\n------------DECRYPTION------------\n")
+    print("\n------------------DECRYPTION------------------\n")
     # First round
     first_round_input = [final_result_permuted[i] for i in IP]
     print("decrypted message after initial permutation:", first_round_input)
@@ -157,8 +181,29 @@ if __name__ == "__main__":
     second_round_result = fk(second_round_input, key1)
     print("second round result:", second_round_result)
 
-    # Final result
+    # Final result simplified des
     final_result = second_round_result + first_round_result
     final_result_permuted = [final_result[i] for i in INVERSE_IP]
     print("final_result_permuted =", final_result_permuted)
 
+    # Inverse shift rows
+    '''
+    Shift rows
+    0 1 
+    2 3 4
+    5 6 7
+
+    0 1
+    4 2 3
+    6 7 5'''
+    inverse_shift = [0, 1, 4, 2, 3, 6, 7, 5]
+    inverse_shift_output = [final_result_permuted[i] for i in inverse_shift]
+    print("<<<<<<<<<<<<<<<<<<<<<<inverse shift output=", inverse_shift_output)
+
+    # Simple Columnar Transposition Technique
+    sctt_first_round = inverse_shift_output[6:] + \
+        inverse_shift_output[:3] + inverse_shift_output[3:6]
+    print("SCTT after first round:", sctt_first_round)
+    sctt_second_round = sctt_first_round[6:] + \
+        sctt_first_round[:3] + sctt_first_round[3:6]
+    print("plaintext:", sctt_second_round)
