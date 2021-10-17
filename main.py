@@ -130,7 +130,7 @@ if __name__ == "__main__":
     #original_message = [1, 0, 1, 1, 1, 1, 0, 1]
 
     # Simple Columnar Transposition Technique
-    sctt = [2, 5, 1, 4, 7, 0, 3, 6]
+    sctt = [2, 5, 0, 3, 6, 1, 4, 7]
     sctt_first_round = [original_message[i] for i in sctt]
     print("SCTT after first round:", sctt_first_round)
     sctt_second_round = [sctt_first_round[i] for i in sctt]
